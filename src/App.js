@@ -6,7 +6,7 @@ import FollowerList from './components/FollowerList';
 
 class App extends React.Component {
   state = {
-    user: 'https://api.github.com/users/joeys1122',
+    user: '',
     userInfo: {},
     followers: []
   }
@@ -29,7 +29,7 @@ class App extends React.Component {
     if (prevState.user !== this.state.user) {
       axios.get('https://api.github.com/users/joeys1122/followers')
         .then(res => {
-          console.log(res)
+          // console.log(res)
           this.setState({
             ...this.state,
             followers: res.data
@@ -41,13 +41,36 @@ class App extends React.Component {
     }
   }
 
+  handleChange = event => {
+    this.setState({
+      ...this.state,
+      user: event.target.value
+    })
+  }
+
+  handleSearch = event => {
+    event.preventDefault()
+
+    axios.get(`https://api.github.com/users/${this.state.user}`)
+      .then(res => {
+        this.setState({
+          ...this.state,
+          user: '',
+          userInfo: res.data
+        })
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+
   render() {
     return(
       <div>
         <h1>Github Info</h1>
         <form>
-          <input/>
-          <button>Search</button>
+          <input value={this.state.user} onChange={this.handleChange}/>
+          <button onClick={this.handleSearch}>Search</button>
         </form>
         <User user={this.state.user} userInfo={this.state.userInfo}/>
         <FollowerList followers={this.state.followers}/>
